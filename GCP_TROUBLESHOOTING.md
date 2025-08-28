@@ -17,7 +17,7 @@ gcloud auth application-default login
 ### 1. VMにログインしてディレクトリ作成
 ```bash
 # VM にログイン
-gcloud compute ssh message --zone=us-central1-c
+ggc
 
 # ディレクトリを作成
 mkdir -p ~/MassageApp

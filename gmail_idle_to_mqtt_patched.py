@@ -100,7 +100,7 @@ BODY_REGEX       = None                       # 例: r"\bORD-\d{6}\b"
 
 def decode_mime_header(raw):
     if not raw:
-       return ""
+        return ""
     try:
         return str(make_header(decode_header(raw)))
     except Exception:
