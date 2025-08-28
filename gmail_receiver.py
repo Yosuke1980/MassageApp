@@ -9,18 +9,13 @@ import os, json, queue, threading
 import tkinter as tk
 from tkinter import ttk, messagebox
 import paho.mqtt.client as mqtt
-from dotenv import load_dotenv
 
-# Load environment variables
-load_dotenv()
-
-# MQTT Configuration from environment variables
-MQTT_HOST = os.environ.get('MQTT_HOST', 'localhost')
-MQTT_PORT = int(os.environ.get('MQTT_PORT', '1883'))
-MQTT_TLS = os.environ.get('MQTT_TLS', 'false').lower() == 'true'
-MQTT_TOPIC = os.environ.get('MQTT_TOPIC', 'inbox/matches')
-MQTT_USER = os.environ.get('MQTT_USER', '')
-MQTT_PASS = os.environ.get('MQTT_PASS', '')
+MQTT_HOST = "23.251.158.46"   # GCP VM の外部IP
+MQTT_PORT = 8883
+MQTT_TLS = True
+MQTT_TOPIC = "inbox/matches"
+MQTT_USER = "alice"
+MQTT_PASS = "9221w8bSEqoF9221"
 
 inbox_q = queue.Queue()
 seen_uids = set()
@@ -55,10 +50,7 @@ def mqtt_worker():
         c = mqtt.Client(callback_api_version=mqtt.CallbackAPIVersion.VERSION2)
         c.username_pw_set(MQTT_USER, MQTT_PASS)
         if MQTT_TLS:
-            # Use system's default certificate store (includes Let's Encrypt certificates)
             c.tls_set()
-            if os.environ.get('MQTT_TLS_INSECURE','false').lower()=='true':
-                c.tls_insecure_set(True)
         c.on_connect = on_connect
         c.on_message = on_message
         c.on_disconnect = on_disconnect

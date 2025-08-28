@@ -231,7 +231,7 @@ class GmailToMqttMonitor:
             try:
                 logging.debug(f"🤝 Creating MQTT client (attempt {attempt + 1})")
                 client_id = os.environ.get('MQTT_CLIENT_ID','') or None
-                client = mqtt.Client(client_id=client_id)
+                client = mqtt.Client(client_id=client_id, callback_api_version=mqtt.CallbackAPIVersion.VERSION2)
                 client.username_pw_set(
                     self.config['mqtt']['user'], 
                     self.config['mqtt']['password']
@@ -302,7 +302,7 @@ class GmailToMqttMonitor:
         try:
             logging.info("Testing MQTT connection...")
             client_id = os.environ.get('MQTT_CLIENT_ID','') or None
-            client = mqtt.Client(client_id=client_id)
+            client = mqtt.Client(client_id=client_id, callback_api_version=mqtt.CallbackAPIVersion.VERSION2)
             client.username_pw_set(
                 self.config['mqtt']['user'], 
                 self.config['mqtt']['password']

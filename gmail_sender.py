@@ -22,8 +22,8 @@ from typing import Dict, Any
 from dotenv import load_dotenv
 import paho.mqtt.client as mqtt
 
-# Import the new IMAP service
-from gmail_imap_service import ImapIdleService
+# Import the Gmail IMAP service
+from gmail_service import ImapIdleService
 
 # Logging setup
 logging.basicConfig(

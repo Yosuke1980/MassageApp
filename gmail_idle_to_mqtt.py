@@ -24,14 +24,11 @@ def test_mqtt_connection():
     try:
         logging.info("Testing MQTT connection...")
         client_id = os.environ.get('MQTT_CLIENT_ID','') or None
-        client = mqtt.Client(client_id=client_id)
+        client = mqtt.Client(client_id=client_id, callback_api_version=mqtt.CallbackAPIVersion.VERSION2)
         client.username_pw_set(MQTT_USER, MQTT_PASS)
         if MQTT_TLS:
-            cafile = os.environ.get('MQTT_CAFILE','')
-            if cafile:
-                client.tls_set(ca_certs=cafile, certfile=None, keyfile=None, cert_reqs=CERT_REQUIRED)
-            else:
-                client.tls_set()
+            # Use system's default certificate store (includes Let's Encrypt certificates)
+            client.tls_set()
             if os.environ.get('MQTT_TLS_INSECURE','false').lower()=='true':
                 client.tls_insecure_set(True)
         client.connect(MQTT_HOST, MQTT_PORT, keepalive=10)
@@ -150,14 +147,11 @@ def mqtt_publish(payload: dict):
     for attempt in range(max_retries):
         try:
             client_id = os.environ.get('MQTT_CLIENT_ID','') or None
-            client = mqtt.Client(client_id=client_id)
+            client = mqtt.Client(client_id=client_id, callback_api_version=mqtt.CallbackAPIVersion.VERSION2)
             client.username_pw_set(MQTT_USER, MQTT_PASS)
             if MQTT_TLS:
-                cafile = os.environ.get('MQTT_CAFILE','')
-                if cafile:
-                    client.tls_set(ca_certs=cafile, certfile=None, keyfile=None, cert_reqs=CERT_REQUIRED)
-                else:
-                    client.tls_set()
+                # Use system's default certificate store (includes Let's Encrypt certificates)
+                client.tls_set()
                 if os.environ.get('MQTT_TLS_INSECURE','false').lower()=='true':
                     client.tls_insecure_set(True)
             

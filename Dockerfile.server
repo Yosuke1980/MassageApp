@@ -1,0 +1,30 @@
+# Gmail IMAP to MQTT Monitor - Server Service
+FROM python:3.13-alpine
+
+# Install uv for fast dependency management
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/uv
+
+# Set working directory
+WORKDIR /app
+
+# Copy project files
+COPY pyproject.toml uv.lock ./
+COPY gmail_sender.py gmail_service.py ./
+
+# Install dependencies with uv
+RUN uv sync --frozen --no-dev
+
+# Create non-root user for security
+RUN addgroup -g 1001 -S appgroup && \
+    adduser -u 1001 -S appuser -G appgroup
+
+# Change ownership to app user
+RUN chown -R appuser:appgroup /app
+USER appuser
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD pgrep -f "gmail_sender.py" || exit 1
+
+# Run the service
+CMD ["uv", "run", "gmail_sender.py"]

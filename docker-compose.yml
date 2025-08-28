@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  gmail-monitor:
+    build:
+      context: .
+      dockerfile: Dockerfile.server
+    container_name: gmail-monitor
+    restart: unless-stopped
+    env_file:
+      - .env
+    networks:
+      - massage-app
+    volumes:
+      - ./logs:/app/logs
+    depends_on:
+      - client
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  client:
+    build:
+      context: .
+      dockerfile: Dockerfile.client
+    container_name: mqtt-popup-client
+    restart: unless-stopped
+    env_file:
+      - .env
+    networks:
+      - massage-app
+    volumes:
+      # X11 forwarding for Mac
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+    environment:
+      - DISPLAY=${DISPLAY:-:99}
+    # For Windows, expose VNC port
+    ports:
+      - "5901:5900"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  massage-app:
+    driver: bridge
+
+volumes:
+  logs:
+    driver: local

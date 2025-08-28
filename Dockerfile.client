@@ -1,0 +1,46 @@
+# MQTT Mail Popup - GUI Client
+FROM python:3.13-slim
+
+# Install system dependencies for GUI
+RUN apt-get update && apt-get install -y \
+    python3-tk \
+    xvfb \
+    x11vnc \
+    fluxbox \
+    wget \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install uv for fast dependency management  
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/uv
+
+# Set working directory
+WORKDIR /app
+
+# Copy project files
+COPY pyproject.toml uv.lock ./
+COPY gmail_receiver.py ./
+
+# Install dependencies with uv
+RUN uv sync --frozen --no-dev
+
+# Create non-root user
+RUN useradd -m -u 1001 appuser && \
+    chown -R appuser:appuser /app
+
+USER appuser
+
+# Set display for GUI
+ENV DISPLAY=:99
+
+# Create startup script
+RUN echo '#!/bin/bash\n\
+Xvfb :99 -screen 0 1024x768x16 &\n\
+sleep 2\n\
+fluxbox &\n\
+uv run gmail_receiver.py\n\
+' > /app/start.sh && chmod +x /app/start.sh
+
+# For development with X11 forwarding
+VOLUME ["/tmp/.X11-unix"]
+
+CMD ["/app/start.sh"]
