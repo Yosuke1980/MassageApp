@@ -1,0 +1,80 @@
+# Gmail MQTT Monitor 設定ファイル
+# Ubuntu Compute Engine での使用に最適化された設定
+
+# Gmail IMAP 設定
+gmail:
+  user: "your-email@gmail.com"  # Gmailアドレス
+  password: "your-app-password"  # Gmailアプリパスワード（2段階認証が必要）
+  host: "imap.gmail.com"
+  port: 993
+  folder: "INBOX"  # 監視するフォルダ
+
+# フィルタリング設定
+filters:
+  search_keywords:
+    - "地震情報"
+    - "津波情報"
+    - "緊急地震速報"
+    - "災害情報"
+  from_domains:
+    - "bosai-jma@jmainfo.go.jp"
+    - "jma.go.jp"
+
+# MQTT ブローカー設定
+mqtt:
+  host: "add-message-app-0922.duckdns.org"  # MQTTブローカーのホスト
+  port: 8883  # TLS使用時は8883、非TLS時は1883
+  tls: true   # TLS暗号化を使用するか
+  tls_insecure: false  # 証明書検証をスキップするか（本番環境では false 推奨）
+  use_system_ca: true  # システムのCA証明書を使用（Let's Encrypt対応）
+  
+  # MQTT認証情報
+  user: "alice"
+  password: "9221w8bSEqoF9221"
+  
+  # MQTTクライアント設定
+  client_id: ""  # 空文字で自動生成
+  topic: "inbox/matches"
+  qos: 1
+  retain: false
+  keepalive: 60
+
+# TLS証明書設定（カスタム証明書使用時のみ）
+tls_certificates:
+  ca_file: ""       # CA証明書ファイルパス（オプション）
+  cert_file: ""     # クライアント証明書ファイルパス（オプション）
+  key_file: ""      # 秘密鍵ファイルパス（オプション）
+
+# IMAP IDLE 設定
+imap_idle:
+  timeout: 300           # IDLE タイムアウト（秒）
+  max_reconnect_attempts: 10
+  reconnect_delay: 5000  # 再接続遅延（ミリ秒）
+  reconnect_backoff_multiplier: 1.5
+
+# メッセージ処理設定
+processing:
+  fetch_body_limit: 4000  # メッセージ本文の最大文字数
+  poll_on_wake: false     # スリープ復帰時のポーリング
+
+# ログ設定
+logging:
+  level: "INFO"  # DEBUG, INFO, WARNING, ERROR
+  format: "%(asctime)s %(levelname)s %(message)s"
+
+# GUI設定（デスクトップ環境でのみ使用）
+gui:
+  enabled: true
+  window_size: "500x400"
+  status_update_interval: 1000  # ミリ秒
+
+# Ubuntu Compute Engine 固有設定
+compute_engine:
+  # サービスとして実行する場合の設定
+  service_mode: true
+  pid_file: "/tmp/gmail_mqtt_monitor.pid"
+  log_file: "/var/log/gmail_mqtt_monitor.log"
+  
+  # システムリソース監視
+  memory_limit_mb: 256
+  cpu_limit_percent: 10
